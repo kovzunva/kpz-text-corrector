@@ -1,0 +1,45 @@
+.appTextFieldWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.appTextFieldLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-base);
+}
+
+.appTextFieldInput {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-family-base);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  width: 100%;
+}
+
+.appTextFieldInput:focus {
+  border-color: var(--color-border-focused);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.appTextFieldError {
+  border-color: var(--color-issue-spelling);
+}
+
+.appTextFieldHelperText {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-family-base);
+}
+
+.appTextFieldErrorText {
+  color: var(--color-issue-spelling);
+}

@@ -1,0 +1,51 @@
+:root {
+  /* Brand Palette */
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-primary-light: rgba(99, 102, 241, 0.15);
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-elevated: #24344d;
+  --color-border: #334155;
+  --color-border-focused: #6366f1;
+
+  /* Text Colors */
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+
+  /* Issue Category Colors (Multi-tier) */
+  --color-issue-spelling: #ef4444;
+  --color-issue-spelling-bg: rgba(239, 68, 68, 0.2);
+  --color-issue-grammar: #f59e0b;
+  --color-issue-grammar-bg: rgba(245, 158, 11, 0.2);
+  --color-issue-style: #3b82f6;
+  --color-issue-style-bg: rgba(59, 130, 246, 0.2);
+  --color-issue-typography: #8b5cf6;
+  --color-issue-typography-bg: rgba(139, 92, 246, 0.2);
+
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Radius Tokens */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+
+  /* Elevation & Effects */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --transition-fast: 0.15s ease-in-out;
+  --transition-normal: 0.25s ease-in-out;
+  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: 'JetBrains Mono', monospace;
+}

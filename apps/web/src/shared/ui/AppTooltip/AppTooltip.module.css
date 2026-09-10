@@ -1,0 +1,31 @@
+.appTooltipPopper {
+  z-index: 1500;
+}
+
+.appTooltipContent {
+  background-color: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.85rem;
+  font-family: var(--font-family-base);
+  box-shadow: var(--shadow-lg);
+  max-width: 320px;
+}
+
+.appTooltipSpelling {
+  border-color: var(--color-issue-spelling);
+}
+
+.appTooltipGrammar {
+  border-color: var(--color-issue-grammar);
+}
+
+.appTooltipStyle {
+  border-color: var(--color-issue-style);
+}
+
+.appTooltipTypography {
+  border-color: var(--color-issue-typography);
+}

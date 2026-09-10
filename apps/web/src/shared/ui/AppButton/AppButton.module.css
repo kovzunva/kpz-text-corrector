@@ -1,0 +1,51 @@
+.appButton {
+  background-color: var(--color-primary);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-family-base);
+  font-weight: 600;
+  text-transform: none;
+  transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid transparent;
+}
+
+.appButton:hover {
+  background-color: var(--color-primary-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.appButtonPrimary {
+  background-color: var(--color-primary);
+  color: var(--color-text-primary);
+}
+
+.appButtonPrimary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.appButtonSecondary {
+  background-color: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.appButtonSecondary:hover {
+  background-color: var(--color-surface);
+  border-color: var(--color-primary);
+}
+
+.appButtonOutlined {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.appButtonOutlined:hover {
+  background-color: var(--color-primary-light);
+}
+
+.appButtonFullWidth {
+  width: 100%;
+}
