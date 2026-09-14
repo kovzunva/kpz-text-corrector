@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  passwordHash    String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  dictionaryRules DictionaryRule[]
+}
+
+model DictionaryRule {
+  id          String   @id @default(uuid())
+  userId      String
+  wordPattern String
+  ruleId      String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GlobalStats {
+  id                    String   @id @default("global_metrics")
+  totalUsers            Int      @default(0)
+  totalCharactersChecked BigInt   @default(0)
+  totalIssuesFound      BigInt   @default(0)
+  updatedAt             DateTime @default(now())
+}
