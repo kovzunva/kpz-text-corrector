@@ -1,0 +1,47 @@
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.metricValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.metricLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.metricSpelling {
+  color: var(--color-issue-spelling);
+}
+
+.metricGrammar {
+  color: var(--color-issue-grammar);
+}
+
+.metricStyle {
+  color: var(--color-issue-style);
+}
+
+.metricTypography {
+  color: var(--color-issue-typography);
+}

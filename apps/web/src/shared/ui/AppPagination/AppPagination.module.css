@@ -1,0 +1,28 @@
+.appPagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.appPagination :global(.MuiPaginationItem-root) {
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-base);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.appPagination :global(.MuiPaginationItem-root:hover) {
+  background-color: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+}
+
+.appPagination :global(.MuiPaginationItem-root.Mui-selected) {
+  background-color: var(--color-primary);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.appPagination :global(.MuiPaginationItem-root.Mui-selected:hover) {
+  background-color: var(--color-primary-hover);
+}

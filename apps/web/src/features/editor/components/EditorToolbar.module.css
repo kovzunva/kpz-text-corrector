@@ -1,0 +1,23 @@
+.toolbarWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.pageInfo {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.actionsGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}

@@ -1,0 +1,86 @@
+.popoverContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 260px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.categoryBadge {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badgeSpelling {
+  background-color: var(--color-issue-spelling-bg);
+  color: var(--color-issue-spelling);
+  border: 1px solid var(--color-issue-spelling);
+}
+
+.badgeGrammar {
+  background-color: var(--color-issue-grammar-bg);
+  color: var(--color-issue-grammar);
+  border: 1px solid var(--color-issue-grammar);
+}
+
+.badgeStyle {
+  background-color: var(--color-issue-style-bg);
+  color: var(--color-issue-style);
+  border: 1px solid var(--color-issue-style);
+}
+
+.badgeTypography {
+  background-color: var(--color-issue-typography-bg);
+  color: var(--color-issue-typography);
+  border: 1px solid var(--color-issue-typography);
+}
+
+.message {
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.ruleId {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-family-mono);
+}
+
+.sectionTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  margin-top: var(--space-1);
+}
+
+.replacementsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.actionsDivider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: var(--space-1) 0;
+}
+
+.actionsGroup {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
