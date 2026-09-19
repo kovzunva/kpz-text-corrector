@@ -4,3 +4,6 @@ export * from './AppCard/AppCard';
 export * from './AppTooltip/AppTooltip';
 export * from './AppPagination/AppPagination';
 export * from './AppPopover/AppPopover';
+export * from './AppModal/AppModal';
+export * from './AppAlert/AppAlert';
+export * from './AppLinearProgress/AppLinearProgress';

@@ -22,11 +22,13 @@ export class TextEngineService {
   ): Promise<CheckTextResponse> {
     const maxChars = isGuest ? 1200 : 50000;
     if (dto.text.length > maxChars) {
-      throw new BadRequestException(
-        `Character limit exceeded. Max allowed for ${
+      throw new BadRequestException({
+        statusCode: 400,
+        errorCode: 'QUOTA_EXCEEDED',
+        message: `Character limit exceeded. Max allowed for ${
           isGuest ? 'guest' : 'authenticated user'
         } is ${maxChars} characters.`,
-      );
+      });
     }
 
     const rawMatches = await this.languageTool.checkText(dto.text, dto.language || 'uk');

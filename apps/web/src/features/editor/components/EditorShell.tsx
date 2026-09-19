@@ -3,10 +3,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { TextIssue } from '@/shared/types/domain';
 import { checkGuestText } from '@/shared/api/text-engine.api';
+import { AppAlert } from '@/shared/ui';
 import { EditorCanvas } from './EditorCanvas';
 import { EditorToolbar } from './EditorToolbar';
 import { EditorMetrics } from './EditorMetrics';
 import { CorrectionPopover } from './CorrectionPopover';
+import { GuestPromoBanner } from './GuestPromoBanner';
+import { GuestUpgradeModal } from '@/features/file-import/components/GuestUpgradeModal';
 import { applyIssueReplacement } from '../utils/offset-calculator';
 import { computeVirtualPages } from '../utils/virtual-pagination';
 import styles from './EditorShell.module.css';
@@ -29,18 +32,25 @@ export const EditorShell: React.FC<EditorShellProps> = ({
 
   const [selectedIssue, setSelectedIssue] = useState<TextIssue | null>(null);
   const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState<boolean>(false);
+  const [quotaErrorMessage, setQuotaErrorMessage] = useState<string | null>(null);
 
   const virtualPages = useMemo(() => computeVirtualPages(fullText, 2500), [fullText]);
   const activePage = virtualPages[activePageIndex] || virtualPages[0];
 
+  const maxChars = isGuest ? 1200 : 50000;
+  const isOverQuota = isGuest && fullText.length > maxChars;
+
   const runAnalysis = useCallback(
     async (textToCheck: string) => {
-      if (!textToCheck.trim()) {
+      if (!textToCheck.trim() || (isGuest && textToCheck.length > 1200)) {
         setAllIssues([]);
         return;
       }
 
       setIsChecking(true);
+      setQuotaErrorMessage(null);
+
       try {
         const response = await checkGuestText({
           text: textToCheck,
@@ -50,12 +60,13 @@ export const EditorShell: React.FC<EditorShellProps> = ({
 
         setAllIssues(response.issues);
       } catch (err) {
-        console.error('Failed to run backend text check:', err);
+        const msg = err instanceof Error ? err.message : 'Failed to analyze text';
+        setQuotaErrorMessage(msg);
       } finally {
         setIsChecking(false);
       }
     },
-    [],
+    [isGuest],
   );
 
   useEffect(() => {
@@ -138,11 +149,17 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         </div>
       </div>
 
-      {isGuest && (
-        <div className={styles.guestBanner}>
-          <span>Guest Mode: Max 1,200 characters allowed. Sign in for 50,000 capacity.</span>
-        </div>
+      {isOverQuota && (
+        <AppAlert severity="error">
+          Guest quota limit reached ({fullText.length} / 1,200 characters). Please register to analyze up to 50,000 characters.
+        </AppAlert>
       )}
+
+      {quotaErrorMessage && !isOverQuota && (
+        <AppAlert severity="warning">{quotaErrorMessage}</AppAlert>
+      )}
+
+      {isGuest && <GuestPromoBanner onRegisterClick={() => setIsUpgradeModalOpen(true)} />}
 
       <EditorMetrics
         charCount={fullText.length}
@@ -150,14 +167,19 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         issues={allIssues.filter(
           (i) => !sessionIgnoredIds.has(i.id) && !alwaysIgnoredRules.has(i.ruleId),
         )}
+        isGuest={isGuest}
       />
 
       <EditorToolbar
         activePage={activePageIndex}
         totalPages={virtualPages.length}
+        isGuest={isGuest}
         onPageChange={(page) => setActivePageIndex(page)}
         onCopyPageText={handleCopyPage}
         onCopyFullText={handleCopyAll}
+        onGuestFileAttempt={() => setIsUpgradeModalOpen(true)}
+        onTextExtracted={(newText) => setFullText(newText)}
+        onError={(msg) => setQuotaErrorMessage(msg)}
       />
 
       <EditorCanvas
@@ -179,6 +201,15 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         onIgnoreOnce={handleIgnoreOnce}
         onAlwaysIgnore={handleAlwaysIgnore}
         wordSubstr={selectedWordSubstr}
+      />
+
+      <GuestUpgradeModal
+        open={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        onRegisterClick={() => {
+          setIsUpgradeModalOpen(false);
+          alert('Redirecting to registration page...');
+        }}
       />
     </div>
   );

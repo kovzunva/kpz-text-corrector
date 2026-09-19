@@ -1,0 +1,20 @@
+.appLinearProgress {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-elevated);
+  overflow: hidden;
+}
+
+.appLinearProgress :global(.MuiLinearProgress-bar) {
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  transition: transform var(--transition-normal);
+}
+
+.appLinearProgressWarning :global(.MuiLinearProgress-bar) {
+  background-color: var(--color-issue-grammar);
+}
+
+.appLinearProgressDanger :global(.MuiLinearProgress-bar) {
+  background-color: var(--color-issue-spelling);
+}
