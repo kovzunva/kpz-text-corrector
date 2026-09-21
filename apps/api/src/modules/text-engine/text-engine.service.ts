@@ -3,6 +3,7 @@ import { PrismaService } from '../../common/prisma/prisma.service';
 import { LanguageToolService } from './services/languagetool.service';
 import { HeuristicsService } from './services/heuristics.service';
 import { PaginationService } from './services/pagination.service';
+import { StatsService } from '../stats/stats.service';
 import { CheckTextDto } from './dto/check-text.dto';
 import { CheckTextResponse, TextIssue, IssueCategory } from '../../common/types/domain';
 
@@ -13,6 +14,7 @@ export class TextEngineService {
     private readonly languageTool: LanguageToolService,
     private readonly heuristics: HeuristicsService,
     private readonly pagination: PaginationService,
+    private readonly statsService: StatsService,
   ) {}
 
   async processText(
@@ -85,6 +87,8 @@ export class TextEngineService {
     );
 
     const wordsCount = dto.text.trim() ? dto.text.trim().split(/\s+/).length : 0;
+
+    void this.statsService.recordCheckMetrics(dto.text.length, combinedIssues);
 
     return {
       pageIndex: sliced.pageIndex,

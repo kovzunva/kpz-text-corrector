@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppPopover, AppButton } from '@/shared/ui';
 import { TextIssue } from '@/shared/types/domain';
+import { createDictionaryRule } from '@/shared/api/dictionary.api';
 import styles from './CorrectionPopover.module.css';
 
 export interface CorrectionPopoverProps {
@@ -92,6 +93,7 @@ export const CorrectionPopover: React.FC<CorrectionPopoverProps> = ({
           <AppButton
             variantType="outlined"
             onClick={() => {
+              void createDictionaryRule(wordSubstr, issue.ruleId).catch(() => {});
               onAlwaysIgnore(issue.ruleId, wordSubstr);
               onClose();
             }}

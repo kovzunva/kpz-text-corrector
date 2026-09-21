@@ -7,3 +7,6 @@ export * from './AppPopover/AppPopover';
 export * from './AppModal/AppModal';
 export * from './AppAlert/AppAlert';
 export * from './AppLinearProgress/AppLinearProgress';
+export * from './AppTable/AppTable';
+export * from './AppChip/AppChip';
+export * from './AppBadge/AppBadge';

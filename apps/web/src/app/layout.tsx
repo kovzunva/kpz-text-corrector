@@ -1,5 +1,8 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { Navbar } from '@/widgets/navbar/Navbar';
+import { Footer } from '@/widgets/footer/Footer';
+import styles from './layout.module.css';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
@@ -14,7 +17,11 @@ export default function RootLayout({
 }): React.JSX.Element {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={styles.layoutBody}>
+        <Navbar />
+        <div className={styles.contentWrapper}>{children}</div>
+        <Footer />
+      </body>
     </html>
   );
 }

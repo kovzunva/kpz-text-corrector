@@ -5,6 +5,7 @@ import { LanguageToolService } from './services/languagetool.service';
 import { HeuristicsService } from './services/heuristics.service';
 import { PaginationService } from './services/pagination.service';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { StatsService } from '../stats/stats.service';
 
 describe('TextEngineService', () => {
   let service: TextEngineService;
@@ -27,6 +28,10 @@ describe('TextEngineService', () => {
     ]),
   };
 
+  const mockStatsService = {
+    recordCheckMetrics: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -35,6 +40,7 @@ describe('TextEngineService', () => {
         PaginationService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: LanguageToolService, useValue: mockLanguageToolService },
+        { provide: StatsService, useValue: mockStatsService },
       ],
     }).compile();
 

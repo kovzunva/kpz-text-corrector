@@ -1,0 +1,7 @@
+.appBadge :global(.MuiBadge-badge) {
+  background-color: var(--color-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  font-weight: 700;
+  font-size: 0.75rem;
+}

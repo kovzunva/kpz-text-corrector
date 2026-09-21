@@ -1,0 +1,21 @@
+.footerContainer {
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-8) var(--space-8);
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.footerContent {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.footerCopyright {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
