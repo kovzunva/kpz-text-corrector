@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { TextIssue } from '@/shared/types/domain';
-import { checkGuestText } from '@/shared/api/text-engine.api';
+import { checkGuestText, checkUserText } from '@/shared/api/text-engine.api';
 import { AppAlert, AppLinearProgress } from '@/shared/ui';
 import { EditorCanvas } from './EditorCanvas';
 import { EditorToolbar } from './EditorToolbar';
@@ -10,10 +10,11 @@ import { EditorMetrics } from './EditorMetrics';
 import { CorrectionPopover } from './CorrectionPopover';
 import { GuestPromoBanner } from './GuestPromoBanner';
 import { GuestUpgradeModal } from '@/features/file-import/components/GuestUpgradeModal';
-import { applyIssueReplacement } from '../utils/offset-calculator';
+import { applyIssueReplacement, adjustIssuesOnTextChange } from '../utils/offset-calculator';
 import { computeVirtualPages } from '../utils/virtual-pagination';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import styles from './EditorShell.module.css';
+
 
 export interface EditorShellProps {
   readonly initialText?: string;
@@ -37,6 +38,8 @@ export const EditorShell: React.FC<EditorShellProps> = ({
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState<boolean>(false);
   const [quotaErrorMessage, setQuotaErrorMessage] = useState<string | null>(null);
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const virtualPages = useMemo(() => computeVirtualPages(fullText, 2500), [fullText]);
   const activePage = virtualPages[activePageIndex] || virtualPages[0];
 
@@ -53,7 +56,8 @@ export const EditorShell: React.FC<EditorShellProps> = ({
 
   const runAnalysis = useCallback(
     async (textToCheck: string) => {
-      if (!textToCheck.trim() || (isGuest && textToCheck.length > 1200)) {
+      const maxAllowed = isGuest ? 1200 : 50000;
+      if (!textToCheck.trim() || textToCheck.length > maxAllowed) {
         setAllIssues([]);
         return;
       }
@@ -62,7 +66,8 @@ export const EditorShell: React.FC<EditorShellProps> = ({
       setQuotaErrorMessage(null);
 
       try {
-        const response = await checkGuestText({
+        const checkFn = isGuest ? checkGuestText : checkUserText;
+        const response = await checkFn({
           text: textToCheck,
           pageIndex: 0,
           pageSize: 50000,
@@ -80,12 +85,11 @@ export const EditorShell: React.FC<EditorShellProps> = ({
   );
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      runAnalysis(fullText);
-    }, 600);
-
-    return () => clearTimeout(timer);
-  }, [fullText, runAnalysis]);
+    // Reset issues if text is completely cleared
+    if (!fullText.trim()) {
+      setAllIssues([]);
+    }
+  }, [fullText]);
 
   const activePageIssues = useMemo(() => {
     return allIssues
@@ -118,6 +122,11 @@ export const EditorShell: React.FC<EditorShellProps> = ({
   };
 
   const handleApplyReplacement = (issue: TextIssue, replacement: string) => {
+    const localOffset = issue.offset - activePage.startOffset;
+    const newCursorPos = Math.max(0, localOffset + replacement.length);
+    const currentScrollTop = textareaRef.current?.scrollTop;
+    const currentScrollLeft = textareaRef.current?.scrollLeft;
+
     const { updatedText, updatedIssues } = applyIssueReplacement(
       fullText,
       issue,
@@ -127,14 +136,53 @@ export const EditorShell: React.FC<EditorShellProps> = ({
 
     setFullText(updatedText);
     setAllIssues(updatedIssues);
+
+    requestAnimationFrame(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+        if (currentScrollTop !== undefined) {
+          textareaRef.current.scrollTop = currentScrollTop;
+        }
+        if (currentScrollLeft !== undefined) {
+          textareaRef.current.scrollLeft = currentScrollLeft;
+        }
+      }
+    });
   };
 
   const handleIgnoreOnce = (issueId: string) => {
+    const currentScrollTop = textareaRef.current?.scrollTop;
+    const currentSelection = textareaRef.current?.selectionStart;
+
     setSessionIgnoredIds((prev) => new Set(prev).add(issueId));
+
+    requestAnimationFrame(() => {
+      if (textareaRef.current && currentSelection !== null && currentSelection !== undefined) {
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(currentSelection, currentSelection);
+        if (currentScrollTop !== undefined) {
+          textareaRef.current.scrollTop = currentScrollTop;
+        }
+      }
+    });
   };
 
   const handleAlwaysIgnore = (ruleId: string) => {
+    const currentScrollTop = textareaRef.current?.scrollTop;
+    const currentSelection = textareaRef.current?.selectionStart;
+
     setAlwaysIgnoredRules((prev) => new Set(prev).add(ruleId));
+
+    requestAnimationFrame(() => {
+      if (textareaRef.current && currentSelection !== null && currentSelection !== undefined) {
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(currentSelection, currentSelection);
+        if (currentScrollTop !== undefined) {
+          textareaRef.current.scrollTop = currentScrollTop;
+        }
+      }
+    });
   };
 
   const handleCopyPage = async () => {
@@ -156,7 +204,11 @@ export const EditorShell: React.FC<EditorShellProps> = ({
       <div className={styles.headerTitleGroup}>
         <h1 className={styles.title}>Workspace Editor</h1>
         <div className={styles.statusIndicator}>
-          {isChecking ? 'Checking text...' : 'Analysis synchronized'}
+          {isChecking
+            ? 'Checking text...'
+            : allIssues.length > 0
+            ? 'Analysis synchronized'
+            : 'Ready to check'}
         </div>
       </div>
 
@@ -189,10 +241,18 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         onChange={(newText) => {
           const prefix = fullText.substring(0, activePage.startOffset);
           const suffix = fullText.substring(activePage.endOffset);
-          setFullText(`${prefix}${newText}${suffix}`);
+          const newFullText = `${prefix}${newText}${suffix}`;
+
+          if (allIssues.length > 0) {
+            const adjustedIssues = adjustIssuesOnTextChange(fullText, newFullText, allIssues);
+            setAllIssues(adjustedIssues);
+          }
+
+          setFullText(newFullText);
         }}
         issues={activePageIssues}
         onSelectIssue={handleSelectIssue}
+        textareaRef={textareaRef}
       />
 
       {/* 4. Pagination & actions */}
@@ -200,11 +260,16 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         activePage={activePageIndex}
         totalPages={virtualPages.length}
         isGuest={isGuest}
+        isChecking={isChecking}
+        onRunCheck={() => void runAnalysis(fullText)}
         onPageChange={(page) => setActivePageIndex(page)}
         onCopyPageText={handleCopyPage}
         onCopyFullText={handleCopyAll}
         onGuestFileAttempt={() => setIsUpgradeModalOpen(true)}
-        onTextExtracted={(newText) => setFullText(newText)}
+        onTextExtracted={(newText) => {
+          setFullText(newText);
+          void runAnalysis(newText);
+        }}
         onError={(msg) => setQuotaErrorMessage(msg)}
       />
 
@@ -224,11 +289,13 @@ export const EditorShell: React.FC<EditorShellProps> = ({
       <CorrectionPopover
         anchorEl={popoverAnchor}
         issue={selectedIssue}
+        isGuest={isGuest}
         onClose={handleClosePopover}
         onApplyReplacement={handleApplyReplacement}
         onIgnoreOnce={handleIgnoreOnce}
         onAlwaysIgnore={handleAlwaysIgnore}
         wordSubstr={selectedWordSubstr}
+        onGuestAuthPrompt={() => setIsUpgradeModalOpen(true)}
       />
 
       <GuestUpgradeModal

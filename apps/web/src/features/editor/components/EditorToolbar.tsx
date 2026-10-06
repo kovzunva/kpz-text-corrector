@@ -7,6 +7,8 @@ export interface EditorToolbarProps {
   readonly activePage: number;
   readonly totalPages: number;
   readonly isGuest: boolean;
+  readonly isChecking: boolean;
+  readonly onRunCheck: () => void;
   readonly onPageChange: (newPage: number) => void;
   readonly onCopyPageText: () => void;
   readonly onCopyFullText: () => void;
@@ -19,6 +21,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   activePage,
   totalPages,
   isGuest,
+  isChecking,
+  onRunCheck,
   onPageChange,
   onCopyPageText,
   onCopyFullText,
@@ -28,19 +32,22 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
 }) => {
   return (
     <div className={styles.toolbarWrapper}>
-      <span className={styles.pageInfo}>
-        Page {activePage + 1} of {totalPages}
-      </span>
+      <div className={styles.pageGroup}>
+        <span className={styles.pageInfo}>
+          Page {activePage + 1} of {totalPages}
+        </span>
 
-      {totalPages > 1 && (
-        <AppPagination
-          count={totalPages}
-          page={activePage + 1}
-          onChange={(_, page) => onPageChange(page - 1)}
-        />
-      )}
+        {totalPages > 1 && (
+          <AppPagination
+            count={totalPages}
+            page={activePage + 1}
+            onChange={(_, page) => onPageChange(page - 1)}
+          />
+        )}
+      </div>
 
       <div className={styles.actionsGroup}>
+
         {!isGuest && (
           <FileImportButton
             isGuest={isGuest}
@@ -49,20 +56,25 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             onError={onError}
           />
         )}
+
         {totalPages > 1 ? (
           <>
             <AppButton variantType="secondary" onClick={onCopyPageText}>
               Copy Page
             </AppButton>
-            <AppButton variantType="primary" onClick={onCopyFullText}>
+            <AppButton variantType="secondary" onClick={onCopyFullText}>
               Copy All
             </AppButton>
           </>
         ) : (
-          <AppButton variantType="primary" onClick={onCopyFullText}>
+          <AppButton variantType="secondary" onClick={onCopyFullText}>
             Copy
           </AppButton>
         )}
+        
+        <AppButton variantType="primary" onClick={onRunCheck} disabled={isChecking}>
+          {isChecking ? 'Analyzing...' : 'Check Text'}
+        </AppButton>
       </div>
     </div>
   );

@@ -10,6 +10,12 @@
   gap: var(--space-3);
 }
 
+.pageGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
 .pageInfo {
   font-size: 0.875rem;
   color: var(--color-text-secondary);

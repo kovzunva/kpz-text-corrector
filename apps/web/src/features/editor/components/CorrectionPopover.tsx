@@ -7,21 +7,25 @@ import styles from './CorrectionPopover.module.css';
 export interface CorrectionPopoverProps {
   readonly anchorEl: HTMLElement | null;
   readonly issue: TextIssue | null;
+  readonly isGuest?: boolean;
   readonly onClose: () => void;
   readonly onApplyReplacement: (issue: TextIssue, replacement: string) => void;
   readonly onIgnoreOnce: (issueId: string) => void;
   readonly onAlwaysIgnore: (ruleId: string, wordPattern: string) => void;
   readonly wordSubstr?: string;
+  readonly onGuestAuthPrompt?: () => void;
 }
 
 export const CorrectionPopover: React.FC<CorrectionPopoverProps> = ({
   anchorEl,
   issue,
+  isGuest = false,
   onClose,
   onApplyReplacement,
   onIgnoreOnce,
   onAlwaysIgnore,
   wordSubstr = '',
+  onGuestAuthPrompt,
 }) => {
   if (!issue) {
     return null;
@@ -47,6 +51,8 @@ export const CorrectionPopover: React.FC<CorrectionPopoverProps> = ({
       open={Boolean(anchorEl)}
       anchorEl={anchorEl}
       onClose={onClose}
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
     >
       <div className={styles.popoverContainer}>
         <div className={styles.header}>
@@ -54,8 +60,8 @@ export const CorrectionPopover: React.FC<CorrectionPopoverProps> = ({
             {issue.category}
           </span>
           <p className={styles.message}>{issue.message}</p>
-          <span className={styles.ruleId}>Rule: {issue.ruleId}</span>
         </div>
+
 
         {issue.replacements.length > 0 && (
           <>
@@ -93,10 +99,18 @@ export const CorrectionPopover: React.FC<CorrectionPopoverProps> = ({
           <AppButton
             variantType="outlined"
             onClick={() => {
+              if (isGuest) {
+                if (onGuestAuthPrompt) {
+                  onGuestAuthPrompt();
+                }
+                onClose();
+                return;
+              }
               void createDictionaryRule(wordSubstr, issue.ruleId).catch(() => {});
               onAlwaysIgnore(issue.ruleId, wordSubstr);
               onClose();
             }}
+            title={isGuest ? 'Sign in to save persistent dictionary rules' : 'Always ignore rule'}
           >
             Always Ignore
           </AppButton>

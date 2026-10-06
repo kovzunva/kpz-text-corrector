@@ -31,6 +31,7 @@
   overflow-y: auto;
   pointer-events: none;
   border: none;
+  z-index: 2;
 }
 
 .textareaLayer {
@@ -55,34 +56,43 @@
 }
 
 .highlightSpan {
+  position: relative;
   border-radius: var(--radius-sm);
-  cursor: pointer;
-  pointer-events: auto;
+  pointer-events: none;
+  z-index: 3;
+  padding: 2px 4px;
+  margin: 0 -2px;
   text-decoration: underline;
   text-decoration-style: wavy;
-  transition: opacity var(--transition-fast);
+  text-underline-offset: 3px;
+  transition: all var(--transition-fast);
 }
 
 .highlightSpan:hover {
-  opacity: 0.85;
+  opacity: 0.95;
+  filter: brightness(0.95);
 }
 
 .highlightSpelling {
-  background-color: var(--color-issue-spelling-bg);
-  text-decoration-color: var(--color-issue-spelling);
+  background-color: rgba(220, 38, 38, 0.22);
+  text-decoration-color: #dc2626;
+  color: transparent;
 }
 
 .highlightGrammar {
-  background-color: var(--color-issue-grammar-bg);
-  text-decoration-color: var(--color-issue-grammar);
+  background-color: rgba(217, 119, 6, 0.22);
+  text-decoration-color: #d97706;
+  color: transparent;
 }
 
 .highlightStyle {
-  background-color: var(--color-issue-style-bg);
-  text-decoration-color: var(--color-issue-style);
+  background-color: rgba(37, 99, 235, 0.22);
+  text-decoration-color: #2563eb;
+  color: transparent;
 }
 
 .highlightTypography {
-  background-color: var(--color-issue-typography-bg);
-  text-decoration-color: var(--color-issue-typography);
+  background-color: rgba(124, 58, 237, 0.22);
+  text-decoration-color: #7c3aed;
+  color: transparent;
 }

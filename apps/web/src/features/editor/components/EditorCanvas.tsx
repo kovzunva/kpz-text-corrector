@@ -8,6 +8,7 @@ export interface EditorCanvasProps {
   readonly issues: readonly TextIssue[];
   readonly onSelectIssue: (issue: TextIssue, targetEl: HTMLElement) => void;
   readonly placeholder?: string;
+  readonly textareaRef?: React.RefObject<HTMLTextAreaElement>;
 }
 
 export const EditorCanvas: React.FC<EditorCanvasProps> = ({
@@ -15,10 +16,12 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
   onChange,
   issues,
   onSelectIssue,
-  placeholder = 'Type or paste text to analyze...',
+  placeholder = 'Type or paste your text here to analyze spelling, grammar, punctuation, and typography...',
+  textareaRef: externalTextareaRef,
 }) => {
   const backdropRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const internalTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = externalTextareaRef || internalTextareaRef;
 
   const handleScroll = useCallback(() => {
     if (backdropRef.current && textareaRef.current) {
@@ -26,6 +29,24 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
       backdropRef.current.scrollLeft = textareaRef.current.scrollLeft;
     }
   }, []);
+
+  const handleTextareaClick = (e: React.MouseEvent<HTMLTextAreaElement>) => {
+    const textarea = e.currentTarget;
+    const clickOffset = textarea.selectionStart;
+
+    if (clickOffset !== undefined && clickOffset !== null && issues.length > 0) {
+      const matchedIssue = issues.find(
+        (issue) => clickOffset >= issue.offset && clickOffset <= issue.offset + issue.length,
+      );
+
+      if (matchedIssue) {
+        const markEl = backdropRef.current?.querySelector<HTMLElement>(
+          `[data-issue-id="${matchedIssue.id}"]`,
+        );
+        onSelectIssue(matchedIssue, markEl || textarea);
+      }
+    }
+  };
 
   const getHighlightCategoryClass = (category: string): string => {
     switch (category) {
@@ -65,11 +86,8 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
         elements.push(
           <mark
             key={issue.id}
+            data-issue-id={issue.id}
             className={`${styles.highlightSpan} ${categoryClass}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectIssue(issue, e.currentTarget);
-            }}
           >
             {issueText}
           </mark>,
@@ -98,7 +116,12 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
         value={text}
         onChange={(e) => onChange(e.target.value)}
         onScroll={handleScroll}
+        onClick={handleTextareaClick}
         placeholder={placeholder}
+        spellCheck={false}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
       />
     </div>
   );
