@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { AppButton, AppCard, AppTable, AppChip, AppColumn } from '@/shared/ui';
 import { fetchGlobalStats } from '@/shared/api/stats.api';
 import { GlobalStatistics } from '@/shared/types/domain';
+import { useAuth } from '@/features/auth/context/AuthContext';
 import styles from './page.module.css';
 
 interface TopIssueRow {
@@ -60,7 +61,8 @@ const FRIENDLY_RULE_MAP: Record<string, { name: string; description: string }> =
 
 export default function LandingPage(): React.JSX.Element {
   const [stats, setStats] = useState<GlobalStatistics | null>(null);
-  const isGuest = true;
+  const { isAuthenticated, openAuthModal } = useAuth();
+  const isGuest = !isAuthenticated;
 
   useEffect(() => {
     fetchGlobalStats().then(setStats).catch(console.error);
@@ -211,7 +213,7 @@ export default function LandingPage(): React.JSX.Element {
               </div>
 
               <div className={styles.guestCta}>
-                <AppButton variantType="primary">
+                <AppButton variantType="primary" onClick={() => openAuthModal('register')}>
                   Register Free Account
                 </AppButton>
               </div>

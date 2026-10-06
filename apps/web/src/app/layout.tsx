@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { Navbar } from '@/widgets/navbar/Navbar';
 import { Footer } from '@/widgets/footer/Footer';
+import { Providers } from './providers';
 import styles from './layout.module.css';
 import '@/styles/globals.css';
 
@@ -18,9 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={styles.layoutBody}>
-        <Navbar />
-        <div className={styles.contentWrapper}>{children}</div>
-        <Footer />
+        <Providers>
+          <Navbar />
+          <div className={styles.contentWrapper}>{children}</div>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

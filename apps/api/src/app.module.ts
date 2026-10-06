@@ -6,6 +6,7 @@ import { TextEngineModule } from './modules/text-engine/text-engine.module';
 import { FileParserModule } from './modules/file-parser/file-parser.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { DictionaryModule } from './modules/dictionary/dictionary.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { DictionaryModule } from './modules/dictionary/dictionary.module';
     FileParserModule,
     StatsModule,
     DictionaryModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [],

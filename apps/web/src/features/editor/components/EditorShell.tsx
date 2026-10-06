@@ -12,6 +12,7 @@ import { GuestPromoBanner } from './GuestPromoBanner';
 import { GuestUpgradeModal } from '@/features/file-import/components/GuestUpgradeModal';
 import { applyIssueReplacement } from '../utils/offset-calculator';
 import { computeVirtualPages } from '../utils/virtual-pagination';
+import { useAuth } from '@/features/auth/context/AuthContext';
 import styles from './EditorShell.module.css';
 
 export interface EditorShellProps {
@@ -21,8 +22,9 @@ export interface EditorShellProps {
 
 export const EditorShell: React.FC<EditorShellProps> = ({
   initialText = '',
-  isGuest = true,
 }) => {
+  const { isAuthenticated, openAuthModal } = useAuth();
+  const isGuest = !isAuthenticated;
   const [fullText, setFullText] = useState<string>(initialText);
   const [activePageIndex, setActivePageIndex] = useState<number>(0);
   const [allIssues, setAllIssues] = useState<readonly TextIssue[]>([]);
@@ -39,13 +41,13 @@ export const EditorShell: React.FC<EditorShellProps> = ({
   const activePage = virtualPages[activePageIndex] || virtualPages[0];
 
   const maxChars = isGuest ? 1200 : 50000;
-  const isOverQuota = isGuest && fullText.length > maxChars;
+  const isOverQuota = fullText.length > maxChars;
   const quotaPercentage = Math.min(100, Math.round((fullText.length / maxChars) * 100));
 
   let statusVariant: 'normal' | 'warning' | 'danger' = 'normal';
-  if (isGuest && fullText.length >= 1200) {
+  if (fullText.length >= maxChars) {
     statusVariant = 'danger';
-  } else if (isGuest && fullText.length >= 1080) {
+  } else if (fullText.length >= Math.floor(maxChars * 0.9)) {
     statusVariant = 'warning';
   }
 
@@ -161,7 +163,9 @@ export const EditorShell: React.FC<EditorShellProps> = ({
       {/* 2. Quota Capacity */}
       {isOverQuota && (
         <AppAlert severity="error">
-          Guest quota limit reached ({fullText.length.toLocaleString()} / 1,200 characters). Please register to analyze up to 50,000 characters.
+          {isGuest
+            ? `Guest quota limit reached (${fullText.length.toLocaleString()} / 1,200 characters). Please register to analyze up to 50,000 characters.`
+            : `Member quota limit reached (${fullText.length.toLocaleString()} / 50,000 characters).`}
         </AppAlert>
       )}
 
@@ -169,15 +173,15 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         <AppAlert severity="warning">{quotaErrorMessage}</AppAlert>
       )}
 
-      {isGuest && (
-        <div className={styles.quotaWrapper}>
-          <div className={styles.quotaHeader}>
-            <span>Guest Quota Capacity ({fullText.length.toLocaleString()} / 1,200 chars)</span>
-            <span>{quotaPercentage}%</span>
-          </div>
-          <AppLinearProgress value={quotaPercentage} statusVariant={statusVariant} />
+      <div className={styles.quotaWrapper}>
+        <div className={styles.quotaHeader}>
+          <span>
+            {isGuest ? 'Guest' : 'Member'} Quota Capacity ({fullText.length.toLocaleString()} / {maxChars.toLocaleString()} chars)
+          </span>
+          <span>{quotaPercentage}%</span>
         </div>
-      )}
+        <AppLinearProgress value={quotaPercentage} statusVariant={statusVariant} />
+      </div>
 
       {/* 3. Main text field */}
       <EditorCanvas
@@ -232,7 +236,7 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         onClose={() => setIsUpgradeModalOpen(false)}
         onRegisterClick={() => {
           setIsUpgradeModalOpen(false);
-          alert('Redirecting to registration page...');
+          openAuthModal('register');
         }}
       />
     </div>

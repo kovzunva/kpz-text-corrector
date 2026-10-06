@@ -48,3 +48,9 @@
   align-items: center;
   gap: var(--space-3);
 }
+
+.userEmail {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}

@@ -4,12 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AppButton } from '@/shared/ui';
+import { useAuth } from '@/features/auth/context/AuthContext';
 import styles from './Navbar.module.css';
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
-  // Guest mode by default; can be extended with auth status
-  const isAuthorized = false;
+  const { user, isAuthenticated, openAuthModal, logout } = useAuth();
 
   return (
     <header className={styles.navbarContainer}>
@@ -27,7 +27,7 @@ export const Navbar: React.FC = () => {
                 Workspace Editor
               </Link>
             </li>
-            {isAuthorized && (
+            {isAuthenticated && (
               <li>
                 <Link
                   href="/dictionary"
@@ -42,7 +42,18 @@ export const Navbar: React.FC = () => {
       </div>
 
       <div className={styles.actionsGroup}>
-        <AppButton variantType="primary">Sign In</AppButton>
+        {isAuthenticated ? (
+          <>
+            <span className={styles.userEmail}>{user?.email}</span>
+            <AppButton variantType="secondary" onClick={logout}>
+              Sign Out
+            </AppButton>
+          </>
+        ) : (
+          <AppButton variantType="primary" onClick={() => openAuthModal('login')}>
+            Sign In
+          </AppButton>
+        )}
       </div>
     </header>
   );
