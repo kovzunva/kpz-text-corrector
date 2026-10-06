@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { TextIssue } from '@/shared/types/domain';
 import { checkGuestText } from '@/shared/api/text-engine.api';
-import { AppAlert } from '@/shared/ui';
+import { AppAlert, AppLinearProgress } from '@/shared/ui';
 import { EditorCanvas } from './EditorCanvas';
 import { EditorToolbar } from './EditorToolbar';
 import { EditorMetrics } from './EditorMetrics';
@@ -20,7 +20,7 @@ export interface EditorShellProps {
 }
 
 export const EditorShell: React.FC<EditorShellProps> = ({
-  initialText = 'Вітаємо у TextGuard Studio -- сервісі для перевірки тексту. Текст можна редагувати "онлайн".',
+  initialText = '',
   isGuest = true,
 }) => {
   const [fullText, setFullText] = useState<string>(initialText);
@@ -40,6 +40,14 @@ export const EditorShell: React.FC<EditorShellProps> = ({
 
   const maxChars = isGuest ? 1200 : 50000;
   const isOverQuota = isGuest && fullText.length > maxChars;
+  const quotaPercentage = Math.min(100, Math.round((fullText.length / maxChars) * 100));
+
+  let statusVariant: 'normal' | 'warning' | 'danger' = 'normal';
+  if (isGuest && fullText.length >= 1200) {
+    statusVariant = 'danger';
+  } else if (isGuest && fullText.length >= 1080) {
+    statusVariant = 'warning';
+  }
 
   const runAnalysis = useCallback(
     async (textToCheck: string) => {
@@ -142,6 +150,7 @@ export const EditorShell: React.FC<EditorShellProps> = ({
 
   return (
     <div className={styles.shellContainer}>
+      {/* 1. Header row */}
       <div className={styles.headerTitleGroup}>
         <h1 className={styles.title}>Workspace Editor</h1>
         <div className={styles.statusIndicator}>
@@ -149,9 +158,10 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         </div>
       </div>
 
+      {/* 2. Quota Capacity */}
       {isOverQuota && (
         <AppAlert severity="error">
-          Guest quota limit reached ({fullText.length} / 1,200 characters). Please register to analyze up to 50,000 characters.
+          Guest quota limit reached ({fullText.length.toLocaleString()} / 1,200 characters). Please register to analyze up to 50,000 characters.
         </AppAlert>
       )}
 
@@ -159,17 +169,29 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         <AppAlert severity="warning">{quotaErrorMessage}</AppAlert>
       )}
 
-      {isGuest && <GuestPromoBanner onRegisterClick={() => setIsUpgradeModalOpen(true)} />}
+      {isGuest && (
+        <div className={styles.quotaWrapper}>
+          <div className={styles.quotaHeader}>
+            <span>Guest Quota Capacity ({fullText.length.toLocaleString()} / 1,200 chars)</span>
+            <span>{quotaPercentage}%</span>
+          </div>
+          <AppLinearProgress value={quotaPercentage} statusVariant={statusVariant} />
+        </div>
+      )}
 
-      <EditorMetrics
-        charCount={fullText.length}
-        wordCount={fullText.trim() ? fullText.trim().split(/\s+/).length : 0}
-        issues={allIssues.filter(
-          (i) => !sessionIgnoredIds.has(i.id) && !alwaysIgnoredRules.has(i.ruleId),
-        )}
-        isGuest={isGuest}
+      {/* 3. Main text field */}
+      <EditorCanvas
+        text={activePage.text}
+        onChange={(newText) => {
+          const prefix = fullText.substring(0, activePage.startOffset);
+          const suffix = fullText.substring(activePage.endOffset);
+          setFullText(`${prefix}${newText}${suffix}`);
+        }}
+        issues={activePageIssues}
+        onSelectIssue={handleSelectIssue}
       />
 
+      {/* 4. Pagination & actions */}
       <EditorToolbar
         activePage={activePageIndex}
         totalPages={virtualPages.length}
@@ -182,16 +204,18 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         onError={(msg) => setQuotaErrorMessage(msg)}
       />
 
-      <EditorCanvas
-        text={activePage.text}
-        onChange={(newText) => {
-          const prefix = fullText.substring(0, activePage.startOffset);
-          const suffix = fullText.substring(activePage.endOffset);
-          setFullText(`${prefix}${newText}${suffix}`);
-        }}
-        issues={activePageIssues}
-        onSelectIssue={handleSelectIssue}
+      {/* 5. Statistics */}
+      <EditorMetrics
+        charCount={fullText.length}
+        wordCount={fullText.trim() ? fullText.trim().split(/\s+/).length : 0}
+        issues={allIssues.filter(
+          (i) => !sessionIgnoredIds.has(i.id) && !alwaysIgnoredRules.has(i.ruleId),
+        )}
+        isGuest={isGuest}
       />
+
+      {/* 6. Registration CTA banner */}
+      {isGuest && <GuestPromoBanner onRegisterClick={() => setIsUpgradeModalOpen(true)} />}
 
       <CorrectionPopover
         anchorEl={popoverAnchor}

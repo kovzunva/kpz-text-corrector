@@ -10,6 +10,12 @@
   z-index: 1000;
 }
 
+.leftGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
 .brandLogo {
   font-size: 1.25rem;
   font-weight: 800;

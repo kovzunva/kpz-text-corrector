@@ -8,46 +8,41 @@ import styles from './Navbar.module.css';
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
+  // Guest mode by default; can be extended with auth status
+  const isAuthorized = false;
 
   return (
     <header className={styles.navbarContainer}>
-      <Link href="/" className={styles.brandLogo}>
-        🛡️ TextGuard Studio
-      </Link>
-
-      <nav>
-        <ul className={styles.navLinks}>
-          <li>
-            <Link
-              href="/"
-              className={`${styles.navLink} ${pathname === '/' ? styles.navLinkActive : ''}`}
-            >
-              Overview
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/editor"
-              className={`${styles.navLink} ${pathname === '/editor' ? styles.navLinkActive : ''}`}
-            >
-              Workspace Editor
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dictionary"
-              className={`${styles.navLink} ${pathname === '/dictionary' ? styles.navLinkActive : ''}`}
-            >
-              Personal Dictionary
-            </Link>
-          </li>
-        </ul>
-      </nav>
+      <div className={styles.leftGroup}>
+        <Link href="/" className={styles.brandLogo}>
+          TextGuard Studio
+        </Link>
+        <nav>
+          <ul className={styles.navLinks}>
+            <li>
+              <Link
+                href="/editor"
+                className={`${styles.navLink} ${pathname === '/editor' ? styles.navLinkActive : ''}`}
+              >
+                Workspace Editor
+              </Link>
+            </li>
+            {isAuthorized && (
+              <li>
+                <Link
+                  href="/dictionary"
+                  className={`${styles.navLink} ${pathname === '/dictionary' ? styles.navLinkActive : ''}`}
+                >
+                  Personal Dictionary
+                </Link>
+              </li>
+            )}
+          </ul>
+        </nav>
+      </div>
 
       <div className={styles.actionsGroup}>
-        <Link href="/editor">
-          <AppButton variantType="primary">Launch Editor</AppButton>
-        </Link>
+        <AppButton variantType="primary">Sign In</AppButton>
       </div>
     </header>
   );

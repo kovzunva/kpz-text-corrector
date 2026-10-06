@@ -38,6 +38,9 @@ Direct imports from `@mui/material` or `@mui/icons-material` inside domain pages
 - Shared domain contracts (DTOs, entity models, category enums) must be synchronized between client and server.
 - Verbose block comments are prohibited; code must be self-explanatory with minimal one-line tags strictly for non-trivial formulas.
 
+### 2.4 Strict UI Language Standard
+- **English-Only UI Rule**: All user-facing interface text, component labels, status indicators, dialog messages, table headers, placeholders, and tooltips MUST strictly be written in English. Ukrainian or any other non-English language in visible UI components is strictly prohibited.
+
 ---
 
 ## 3. Repository Structure

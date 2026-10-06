@@ -36,13 +36,13 @@ export const GuestUpgradeModal: React.FC<GuestUpgradeModalProps> = ({
 
         <ul className={styles.featureList}>
           <li className={styles.featureItem}>
-            <span className={styles.featureCheck}>✓</span> Up to 50,000 characters per document
+            Up to 50,000 characters per document
           </li>
           <li className={styles.featureItem}>
-            <span className={styles.featureCheck}>✓</span> Native `.txt` and `.docx` file buffer extraction
+            Native `.txt` and `.docx` file buffer extraction
           </li>
           <li className={styles.featureItem}>
-            <span className={styles.featureCheck}>✓</span> Personalized dictionary rule synchronization
+            Personalized dictionary rule synchronization
           </li>
         </ul>
       </div>

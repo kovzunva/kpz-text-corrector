@@ -60,7 +60,7 @@ export const FileImportButton: React.FC<FileImportButtonProps> = ({
 
   return (
     <>
-      <AppButton variantType="outlined" onClick={handleClick}>
+      <AppButton variantType="secondary" onClick={handleClick}>
         Import Document
       </AppButton>
       <input

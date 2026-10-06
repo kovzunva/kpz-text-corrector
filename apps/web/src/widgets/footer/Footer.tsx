@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
         TextGuard Studio — Advanced Multi-Pass Text Correction & Dictionary Synchronization Service.
       </p>
       <p className={styles.footerCopyright}>
-        © {new Date().getFullYear()} TextGuard Studio. Built with Next.js App Router & NestJS.
+        © {new Date().getFullYear()} TextGuard Studio. All Rights Reserved
       </p>
     </footer>
   );

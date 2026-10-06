@@ -41,18 +41,28 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       )}
 
       <div className={styles.actionsGroup}>
-        <FileImportButton
-          isGuest={isGuest}
-          onGuestAttempt={onGuestFileAttempt}
-          onTextExtracted={onTextExtracted}
-          onError={onError}
-        />
-        <AppButton variantType="secondary" onClick={onCopyPageText}>
-          Copy Page
-        </AppButton>
-        <AppButton variantType="outlined" onClick={onCopyFullText}>
-          Copy All
-        </AppButton>
+        {!isGuest && (
+          <FileImportButton
+            isGuest={isGuest}
+            onGuestAttempt={onGuestFileAttempt}
+            onTextExtracted={onTextExtracted}
+            onError={onError}
+          />
+        )}
+        {totalPages > 1 ? (
+          <>
+            <AppButton variantType="secondary" onClick={onCopyPageText}>
+              Copy Page
+            </AppButton>
+            <AppButton variantType="primary" onClick={onCopyFullText}>
+              Copy All
+            </AppButton>
+          </>
+        ) : (
+          <AppButton variantType="primary" onClick={onCopyFullText}>
+            Copy
+          </AppButton>
+        )}
       </div>
     </div>
   );
