@@ -27,3 +27,22 @@
   align-items: center;
   gap: var(--space-2);
 }
+
+@media (max-width: 600px) {
+  .toolbarWrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .pageGroup {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .actionsGroup {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    width: 100%;
+  }
+}

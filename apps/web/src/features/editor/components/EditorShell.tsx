@@ -226,6 +226,12 @@ export const EditorShell: React.FC<EditorShellProps> = ({
     await navigator.clipboard.writeText(fullText);
   };
 
+  const handleClearText = () => {
+    setFullText('');
+    setAllIssues([]);
+    setActivePageIndex(0);
+  };
+
   const selectedWordSubstr = useMemo(() => {
     if (!selectedIssue) return '';
     return fullText.substring(selectedIssue.offset, selectedIssue.offset + selectedIssue.length);
@@ -294,7 +300,9 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         totalPages={virtualPages.length}
         isGuest={isGuest}
         isChecking={isChecking}
+        hasText={Boolean(fullText.trim())}
         onRunCheck={() => void runAnalysis(fullText)}
+        onClearText={handleClearText}
         onPageChange={(page) => setActivePageIndex(page)}
         onCopyPageText={handleCopyPage}
         onCopyFullText={handleCopyAll}

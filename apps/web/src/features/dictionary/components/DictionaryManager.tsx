@@ -187,11 +187,39 @@ export const DictionaryManager: React.FC = () => {
       </div>
 
       {filteredRules.length > 0 ? (
-        <AppTable
-          columns={columns}
-          data={filteredRules}
-          getRowId={(row) => row.id}
-        />
+        <>
+          {/* Desktop Table View */}
+          <div className={styles.desktopOnly}>
+            <AppTable
+              columns={columns}
+              data={filteredRules}
+              getRowId={(row) => row.id}
+            />
+          </div>
+
+          {/* Mobile Stacked Cards View */}
+          <div className={styles.mobileOnly}>
+            {filteredRules.map((row) => (
+              <AppCard key={row.id} elevated className={styles.mobileRuleCard}>
+                <div className={styles.mobileRuleHeader}>
+                  <div className={styles.mobileRulePattern}>
+                    {row.wordPattern ? <strong>"{row.wordPattern}"</strong> : <em>Any Word</em>}
+                  </div>
+                  {row.ruleId && <AppChip label={row.ruleId} color="primary" />}
+                </div>
+
+                <div className={styles.mobileRuleMeta}>
+                  <span className={styles.mobileDate}>
+                    Added: {new Date(row.createdAt).toLocaleDateString()}
+                  </span>
+                  <AppButton variantType="outlined" onClick={() => setRuleToDelete(row)}>
+                    Delete Rule
+                  </AppButton>
+                </div>
+              </AppCard>
+            ))}
+          </div>
+        </>
       ) : (
         <AppCard elevated className={styles.emptyCard}>
           <h3 className={styles.emptyTitle}>No Custom Rules Found</h3>

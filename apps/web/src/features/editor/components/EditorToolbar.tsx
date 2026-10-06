@@ -8,7 +8,9 @@ export interface EditorToolbarProps {
   readonly totalPages: number;
   readonly isGuest: boolean;
   readonly isChecking: boolean;
+  readonly hasText: boolean;
   readonly onRunCheck: () => void;
+  readonly onClearText: () => void;
   readonly onPageChange: (newPage: number) => void;
   readonly onCopyPageText: () => void;
   readonly onCopyFullText: () => void;
@@ -22,7 +24,9 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   totalPages,
   isGuest,
   isChecking,
+  hasText,
   onRunCheck,
+  onClearText,
   onPageChange,
   onCopyPageText,
   onCopyFullText,
@@ -47,6 +51,11 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       </div>
 
       <div className={styles.actionsGroup}>
+        {hasText && (
+          <AppButton variantType="outlined" onClick={onClearText}>
+            Clear
+          </AppButton>
+        )}
 
         {!isGuest && (
           <FileImportButton

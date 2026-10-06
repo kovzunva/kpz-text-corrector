@@ -17,6 +17,22 @@ interface TopIssueRow {
 }
 
 const FRIENDLY_RULE_MAP: Record<string, { name: string; description: string }> = {
+  UK_SIMPLE_REPLACE: {
+    name: 'Language Spelling',
+    description: 'Non-standard or archaic word spelling detected',
+  },
+  MULTIPLE_SPACES: {
+    name: 'Multiple Spaces',
+    description: 'Multiple consecutive spaces used instead of a single space',
+  },
+  TYPOGRAPHY_DOUBLE_SPACE: {
+    name: 'Multiple Spaces',
+    description: 'Multiple consecutive spaces used instead of a single space',
+  },
+  DOUBLE_SPACE: {
+    name: 'Multiple Spaces',
+    description: 'Multiple consecutive spaces used instead of a single space',
+  },
   SPELLING_RULE: {
     name: 'Spelling Errors',
     description: 'Spelling mistake or typo detected in word',
@@ -91,16 +107,29 @@ export default function LandingPage(): React.JSX.Element {
     },
   ];
 
-  const tableData: readonly TopIssueRow[] = stats?.topIssues.map((item, idx) => {
-    const mapped = FRIENDLY_RULE_MAP[item.ruleId];
-    return {
-      rank: idx + 1,
-      ruleId: item.ruleId,
-      friendlyName: mapped ? mapped.name : item.ruleId,
-      occurrences: item.occurrences,
-      description: mapped ? mapped.description : item.description,
-    };
-  }) || [];
+  const tableData: readonly TopIssueRow[] =
+    stats?.topIssues.map((item, idx) => {
+      const mapped = FRIENDLY_RULE_MAP[item.ruleId];
+
+      const friendlyName = mapped
+        ? mapped.name
+        : item.ruleId
+            .split('_')
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+            .join(' ');
+
+      const rawDesc = mapped ? mapped.description : item.description;
+      const hasCyrillic = /[а-яА-ЯєЄіІїЇґҐ]/.test(rawDesc);
+      const cleanDesc = hasCyrillic ? 'Grammatical or typographic error detected' : rawDesc;
+
+      return {
+        rank: idx + 1,
+        ruleId: item.ruleId,
+        friendlyName,
+        occurrences: item.occurrences,
+        description: cleanDesc,
+      };
+    }) || [];
 
   return (
     <main className={styles.landingContainer}>
@@ -135,7 +164,7 @@ export default function LandingPage(): React.JSX.Element {
         <div className={styles.statsGrid}>
           <AppCard elevated className={styles.statsCard}>
             <span className={styles.statsNumber}>
-              {stats ? stats.totalUsers.toLocaleString() : '42'}
+              {stats ? stats.totalUsers.toLocaleString() : '0'}
             </span>
             <span className={styles.statsLabel}>Registered Members</span>
             <span className={styles.statsDesc}>Active platform members utilizing dictionary sync</span>
@@ -143,7 +172,7 @@ export default function LandingPage(): React.JSX.Element {
 
           <AppCard elevated className={styles.statsCard}>
             <span className={styles.statsNumber}>
-              {stats ? stats.totalCharactersChecked.toLocaleString() : '148,200'}
+              {stats ? stats.totalCharactersChecked.toLocaleString() : '0'}
             </span>
             <span className={styles.statsLabel}>Characters Processed</span>
             <span className={styles.statsDesc}>Total text characters analyzed through engine runs</span>
@@ -151,7 +180,7 @@ export default function LandingPage(): React.JSX.Element {
 
           <AppCard elevated className={styles.statsCard}>
             <span className={styles.statsNumber}>
-              {stats ? stats.totalIssuesFound.toLocaleString() : '684'}
+              {stats ? stats.totalIssuesFound.toLocaleString() : '0'}
             </span>
             <span className={styles.statsLabel}>Defects Detected</span>
             <span className={styles.statsDesc}>Syntax, spelling and typographic errors identified</span>
@@ -168,12 +197,30 @@ export default function LandingPage(): React.JSX.Element {
           </p>
         </div>
 
-        <div className={styles.tableWrapper}>
+        {/* Desktop Table View */}
+        <div className={`${styles.tableWrapper} ${styles.desktopOnly}`}>
           <AppTable
             columns={columns}
             data={tableData}
             getRowId={(row) => row.ruleId}
           />
+        </div>
+
+        {/* Mobile Stacked Cards View */}
+        <div className={`${styles.mobileCardsList} ${styles.mobileOnly}`}>
+          {tableData.map((row) => (
+            <AppCard key={row.ruleId} elevated className={styles.mobileInfractionCard}>
+              <div className={styles.mobileCardHeader}>
+                <span className={styles.mobileRank}>#{row.rank}</span>
+                <AppChip label={row.friendlyName} color="primary" />
+              </div>
+              <p className={styles.mobileDescription}>{row.description}</p>
+              <div className={styles.mobileCardFooter}>
+                <span>Occurrences:</span>
+                <strong className={styles.mobileCount}>{row.occurrences.toLocaleString()}</strong>
+              </div>
+            </AppCard>
+          ))}
         </div>
       </section>
 
