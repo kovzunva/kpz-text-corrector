@@ -10,11 +10,11 @@ import { EditorMetrics } from './EditorMetrics';
 import { CorrectionPopover } from './CorrectionPopover';
 import { GuestPromoBanner } from './GuestPromoBanner';
 import { GuestUpgradeModal } from '@/features/file-import/components/GuestUpgradeModal';
+import { fetchDictionaryRules } from '@/shared/api/dictionary.api';
 import { applyIssueReplacement, adjustIssuesOnTextChange } from '../utils/offset-calculator';
 import { computeVirtualPages } from '../utils/virtual-pagination';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import styles from './EditorShell.module.css';
-
 
 export interface EditorShellProps {
   readonly initialText?: string;
@@ -31,6 +31,7 @@ export const EditorShell: React.FC<EditorShellProps> = ({
   const [allIssues, setAllIssues] = useState<readonly TextIssue[]>([]);
   const [sessionIgnoredIds, setSessionIgnoredIds] = useState<Set<string>>(new Set());
   const [alwaysIgnoredRules, setAlwaysIgnoredRules] = useState<Set<string>>(new Set());
+  const [alwaysIgnoredWords, setAlwaysIgnoredWords] = useState<Set<string>>(new Set());
   const [isChecking, setIsChecking] = useState<boolean>(false);
 
   const [selectedIssue, setSelectedIssue] = useState<TextIssue | null>(null);
@@ -39,6 +40,26 @@ export const EditorShell: React.FC<EditorShellProps> = ({
   const [quotaErrorMessage, setQuotaErrorMessage] = useState<string | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchDictionaryRules()
+        .then((rules) => {
+          const ruleIds = new Set<string>();
+          const wordPatterns = new Set<string>();
+          rules.forEach((r) => {
+            if (r.ruleId) ruleIds.add(r.ruleId);
+            if (r.wordPattern) wordPatterns.add(r.wordPattern.toLowerCase());
+          });
+          setAlwaysIgnoredRules(ruleIds);
+          setAlwaysIgnoredWords(wordPatterns);
+        })
+        .catch(console.error);
+    } else {
+      setAlwaysIgnoredRules(new Set());
+      setAlwaysIgnoredWords(new Set());
+    }
+  }, [isAuthenticated]);
 
   const virtualPages = useMemo(() => computeVirtualPages(fullText, 2500), [fullText]);
   const activePage = virtualPages[activePageIndex] || virtualPages[0];
@@ -95,7 +116,14 @@ export const EditorShell: React.FC<EditorShellProps> = ({
     return allIssues
       .filter((issue) => {
         if (sessionIgnoredIds.has(issue.id)) return false;
-        if (alwaysIgnoredRules.has(issue.ruleId)) return false;
+        if (issue.ruleId && alwaysIgnoredRules.has(issue.ruleId)) return false;
+
+        const issueText = activePage.text
+          .substring(issue.offset, issue.offset + issue.length)
+          .toLowerCase();
+        if (Array.from(alwaysIgnoredWords).some((w) => issueText.includes(w))) {
+          return false;
+        }
 
         return (
           issue.offset >= activePage.startOffset &&
@@ -106,7 +134,7 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         ...issue,
         offset: issue.offset - activePage.startOffset,
       }));
-  }, [allIssues, activePage, sessionIgnoredIds, alwaysIgnoredRules]);
+  }, [allIssues, activePage, sessionIgnoredIds, alwaysIgnoredRules, alwaysIgnoredWords]);
 
   const handleSelectIssue = (issue: TextIssue, targetEl: HTMLElement) => {
     const globalIssue = allIssues.find(
@@ -168,11 +196,16 @@ export const EditorShell: React.FC<EditorShellProps> = ({
     });
   };
 
-  const handleAlwaysIgnore = (ruleId: string) => {
+  const handleAlwaysIgnore = (ruleId: string, wordPattern: string = '') => {
     const currentScrollTop = textareaRef.current?.scrollTop;
     const currentSelection = textareaRef.current?.selectionStart;
 
-    setAlwaysIgnoredRules((prev) => new Set(prev).add(ruleId));
+    if (ruleId) {
+      setAlwaysIgnoredRules((prev) => new Set(prev).add(ruleId));
+    }
+    if (wordPattern) {
+      setAlwaysIgnoredWords((prev) => new Set(prev).add(wordPattern.toLowerCase()));
+    }
 
     requestAnimationFrame(() => {
       if (textareaRef.current && currentSelection !== null && currentSelection !== undefined) {

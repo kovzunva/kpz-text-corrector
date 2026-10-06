@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Headers } from '@nestjs/common';
 import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { TextEngineService } from './text-engine.service';
 import { CheckTextDto } from './dto/check-text.dto';
@@ -18,7 +18,10 @@ export class TextEngineController {
 
   @Post('check')
   @HttpCode(HttpStatus.OK)
-  async checkUserText(@Body() dto: CheckTextDto): Promise<CheckTextResponse> {
-    return this.textEngine.processText(dto, false);
+  async checkUserText(
+    @Headers('x-user-id') userId: string | undefined,
+    @Body() dto: CheckTextDto,
+  ): Promise<CheckTextResponse> {
+    return this.textEngine.processText(dto, false, userId);
   }
 }

@@ -1,4 +1,5 @@
 import { CheckTextResponse } from '../types/domain';
+import { getStoredUserId } from './dictionary.api';
 
 export interface CheckTextPayload {
   readonly text: string;
@@ -27,11 +28,17 @@ export async function checkGuestText(payload: CheckTextPayload): Promise<CheckTe
 }
 
 export async function checkUserText(payload: CheckTextPayload): Promise<CheckTextResponse> {
+  const userId = getStoredUserId();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (userId) {
+    headers['x-user-id'] = userId;
+  }
+
   const response = await fetch(`${API_BASE_URL}/v1/text/check`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify(payload),
   });
 

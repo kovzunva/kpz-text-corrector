@@ -7,7 +7,9 @@ import { UserDictionaryRule } from '../../common/types/domain';
 export class DictionaryService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserRules(userId: string = 'default-user'): Promise<readonly UserDictionaryRule[]> {
+  async getUserRules(userId: string): Promise<readonly UserDictionaryRule[]> {
+    if (!userId) return [];
+
     const rules = await this.prisma.dictionaryRule.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
@@ -22,12 +24,33 @@ export class DictionaryService {
     }));
   }
 
-  async addRule(dto: CreateRuleDto, userId: string = 'default-user'): Promise<UserDictionaryRule> {
+  async addRule(dto: CreateRuleDto, userId: string): Promise<UserDictionaryRule> {
+    const wordPattern = dto.wordPattern || '';
+    const ruleId = dto.ruleId || null;
+
+    const existing = await this.prisma.dictionaryRule.findFirst({
+      where: {
+        userId,
+        wordPattern,
+        ruleId,
+      },
+    });
+
+    if (existing) {
+      return {
+        id: existing.id,
+        userId: existing.userId,
+        wordPattern: existing.wordPattern,
+        ruleId: existing.ruleId || undefined,
+        createdAt: existing.createdAt.toISOString(),
+      };
+    }
+
     const created = await this.prisma.dictionaryRule.create({
       data: {
         userId,
-        wordPattern: dto.wordPattern || '',
-        ruleId: dto.ruleId || null,
+        wordPattern,
+        ruleId,
       },
     });
 
@@ -40,7 +63,7 @@ export class DictionaryService {
     };
   }
 
-  async deleteRule(id: string, userId: string = 'default-user'): Promise<{ success: boolean }> {
+  async deleteRule(id: string, userId: string): Promise<{ success: boolean }> {
     const rule = await this.prisma.dictionaryRule.findFirst({
       where: { id, userId },
     });
